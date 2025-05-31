@@ -1,0 +1,459 @@
+/* Simple Web Audio Player - Copyright Michael Sinz */
+
+html,
+body {
+	color: black;
+	background-color: white;
+	height: 100%;
+	width: 100%;
+	border: 0;
+	margin: 0;
+	padding: 0;
+	overflow: hidden;
+}
+
+table {
+	height: 100%;
+	width: 100%;
+	margin: 0;
+	border: 0;
+	border-spacing: 0;
+	padding: 5px;
+}
+
+td {
+	vertical-align: top;
+	padding: 0;
+}
+
+#AudioElement {
+	display: none;
+}
+
+#Folders,
+#Files,
+#Playlists {
+	font-size: 140%;
+	-moz-column-width: 16em;
+	-moz-column-gap: 0.5em;
+	-moz-column-fill: balance;
+	-moz-column-rule: 1px solid #BBB;
+	column-width: 16em;
+	column-gap: 0.5em;
+	column-fill: balance;
+	column-rule: 1px solid #BBB;
+	margin: 2px;
+	padding: 2px;
+	background-color: transparent;
+}
+
+#SaveCurrent {
+	z-index: 5;
+	position: absolute;
+	top: 0;
+	bottom: 0;
+	left: 0;
+	right: 0;
+	background-color: #FFFFFF80;
+	padding: 10px;
+	overflow: hidden;
+	vertical-align: middle;
+	text-align: center;
+}
+
+#SaveCurrentContents {
+	font-size: 125%;
+	background-color: #ddd;
+	border-radius: 11px;
+	padding: 2em;
+	margin: auto;
+	box-shadow: 2px 2px 20px rgba(0, 0, 0, 0.7);
+	display: inline-block;
+}
+
+#PlaylistName {
+	width: 17em;
+}
+
+#AddAll {
+	font-weight: bold;
+	border: 0.5px solid #def;
+	box-shadow: 0px 0px 14px rgba(90, 100, 0, 0.4) inset;
+	border-radius: 1em;
+	margin: 0.35em 0.2em 0.1em 1em;
+	padding: 0.1em 0.6em;
+	float: right;
+}
+
+.Folder,
+.Audio,
+.Playlist {
+	border-left: 0.5px solid transparent;
+	border-right: 0.5px solid transparent;
+	border-top: 0.5px solid #def;
+	border-bottom: 0.5px solid #def;
+	-webkit-column-break-inside: avoid-column;
+	page-break-inside: avoid;
+	break-inside: avoid-column;
+	color: darkblue;
+	padding-top: 3pt;
+	padding-bottom: 3pt;
+	display: flex;
+	overflow: hidden;
+}
+
+.Audio img {
+	background-image: url(Music.png);
+	background-size: cover;
+	transition: 1s;
+}
+
+.Paused img,
+.Playing img {
+	background-image: url(Record.png);
+	background-size: cover;
+	transition: 1s;
+}
+
+.Playing img {
+	border-radius: 50% !important;
+	animation: PlayingRotation linear 3s infinite;
+	transition: 1s;
+	opacity: 80%;
+}
+
+.Paused img {
+	opacity: 50%;
+	transition: 1s;
+}
+
+@keyframes PlayingRotation {
+	0% { transform: rotate(0); }
+	50% { transform: rotate(180deg); }
+	100% { transform: rotate(360deg); }
+}
+
+.Playing,
+.Paused {
+	transition: 1s;
+}
+
+.Folder div,
+.Audio div,
+.Playlist div {
+	flex-grow: 1;
+}
+
+#SaveCurrentContents img,
+.Folder img,
+.Audio img,
+.Playlist img {
+	margin-left: 0.2em;
+	margin-right: 0.2em;
+	height: 52px;
+	border-radius: 5px;
+}
+
+.Playlist img.DeletePlaylist {
+	border-radius: 9px;
+	height: 42px;
+	padding: 5px;
+	opacity: 0.3;
+}
+
+.Playlist img.DeletePlaylist:hover {
+	opacity: 1;
+	background-color: red;
+}
+
+.Audio {
+	color: darkgreen;
+}
+
+.Playlist {
+	color: darkred;
+}
+
+.Folder:hover,
+.Audio:hover,
+.Playlist:hover,
+#HideDetails:hover,
+#ShowDetails:hover {
+	color: black;
+	border: 0.5px solid #555;
+	border-radius: 9px;
+}
+
+#SaveNowPlaying,
+#EjectAll {
+	vertical-align: bottom;
+}
+
+#SaveNowPlaying {
+	float: right;
+}
+
+
+#ShowDetails,
+#HideDetails,
+#Track {
+	font-size: 150%;
+	margin: 0;
+	padding: 0;
+}
+
+#ShowDetails,
+#HideDetails {
+	float: left;
+	border: 0.5px solid transparent;
+	border-radius: 9px;
+}
+
+#PathHeader {
+	margin-top: 2px;
+	padding: 1px 0px;
+	line-height: 1.8em;
+	overflow: hidden;
+}
+
+#PathLink {
+	text-decoration: none;
+}
+
+.Folder,
+.Audio,
+.Playlist,
+.Path,
+.DeletePlaylist,
+#CoverArt,
+#BackCoverArt,
+#AddAll,
+#ShowDetails,
+#HideDetails {
+	cursor: pointer;
+	transition-duration: 0.3s;
+}
+
+#PathHeader,
+#AddAll {
+	font-size: 110%;
+}
+
+.Path {
+	margin: 1px;
+	padding: 1px 3.5px;
+	border-radius: 7px;
+	box-shadow: 0px 0px 12px rgba(0, 60, 0, 0.2) inset;
+	white-space: nowrap;
+	font-size: 125%;
+}
+
+.Folder:hover,
+.Audio:hover,
+.Playlist:hover,
+.Path:hover,
+#AddAll:hover,
+#ShowDetails:hover,
+#HideDetails:hover {
+	background-color: yellow;
+}
+
+.Slash {
+	font-weight: lighter;
+	font-size: 80%;
+}
+
+#Track::before {
+	content: "\266C\00A0";
+}
+
+#Album {
+	cursor: pointer;
+	min-width: 120px;
+}
+
+#Album::before {
+	content: "\01F4BF\00A0";
+}
+
+#Album:hover {
+	color: darkgreen;
+}
+
+#PlaylistCell {
+	width: 55%;
+}
+
+#UpNext {
+	height: 2em;
+	font-size: 100%;
+}
+
+#PlaylistContainer {
+	position: relative;
+	overflow: hidden;
+	height: 100%;
+	margin-top: 3px;
+	clear: both;
+}
+
+#ContainerCell {
+	box-shadow: 1px 1px 15px rgba(0, 0, 0, 0.4) inset;
+	border-radius: 7px;
+	transition-duration: 0.3s;
+	height: 99%;
+}
+
+#Container {
+	position: relative;
+	overflow: hidden;
+	height: 100%;
+}
+
+#Contains hr {
+	margin-left: 15px;
+	margin-right: 15px;
+	color: lightblue;
+}
+
+#Contains,
+#Playlist {
+	overflow-x: hidden;
+	overflow-y: auto;
+	-webkit-overflow-scrolling: touch;
+	position: absolute;
+	left: 0;
+	right: 0;
+	top: 0;
+	bottom: 0;
+	scrollbar-width: none;
+}
+
+#CoverArt,
+#BackCoverArt,
+#PlaylistContainer {
+	height: 123px;
+	background: #F8F8FD;
+}
+
+#CoverArt,
+#BackCoverArt,
+#PlaylistContainer,
+#Player {
+	box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.5);
+	border-radius: 11px;
+	transition-duration: 0.3s;
+}
+
+#CoverArt:hover,
+#BackCoverArt:hover,
+#PlaylistContainer:hover,
+#Player:hover {
+	box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.8);
+}
+
+#Playlist {
+	font-size: 78%;
+	min-width: 15em;
+	cursor: pointer;
+	color: darkgreen;
+	margin-right: 6px;
+}
+
+#Playlist .Audio img {
+	height: 1em;
+	border-radius: 0;
+}
+
+#CoverArt,
+#BackCoverArt {
+	border: 0;
+	margin-left: 6px;
+	margin-bottom: 3px;
+}
+
+#Player {
+	display: flex;
+	background: #F8F8FD;
+	margin: 0px 0px 2px 0px;
+	height: 50px;
+	padding: 4px;
+	font-family: 'Courier New', Courier, monospace;
+	font-size: 17px;
+}
+
+#sliderDiv {
+	flex-grow: 100;
+	overflow: hidden;
+	text-wrap: nowrap;
+	white-space: nowrap;
+	padding: 0;
+	margin-left: 3px;
+	margin-right: 0;
+	margin-top: 0;
+	margin-bottom: 0;
+	border-radius: 9px;
+	background-color: #463656;
+	background-size: 100% 100%;
+	background-position: center;
+	background-repeat: no-repeat;
+	box-shadow: 1px 1px 6px #000000F9 inset;
+	height: 100%;
+	transition: 1s;
+}
+
+#sliderKnob,
+#sliderProgressDiv {
+	display: inline-block;
+	height: 100%;
+	margin: 0;
+	padding: 0;
+	border: 0;
+}
+
+#sliderProgressDiv {
+	opacity: 1;
+	border-right: 0.5px solid #ff8;
+	background-color: #00009970;
+	box-shadow: 1px 1px 5px #000000B0 inset;
+}
+
+#sliderKnob {
+	width: 28px;
+	margin-left: -8px;
+	background-color: transparent;
+	background-image: url('Knob.png');
+	background-size: contain;
+	background-repeat: no-repeat;
+	background-position: center;
+	cursor: pointer;
+}
+
+.PlayerButton {
+	flex-grow: 0;
+	border: 0;
+	margin: 0;
+	padding: 0;
+	height: 100%;
+	cursor: pointer;
+	opacity: 65%;
+	transition: 0.3s;
+}
+
+.PlayerButton:hover {
+	opacity: 100%;
+}
+
+.PlayerButton:active {
+	opacity: 90%;
+	background-color: yellow;
+}
+
+#progressTime {
+	flex-grow: 0;
+	width: 3.5em;
+	border: 0;
+	margin: auto;
+	padding: 0;
+	text-align: right;
+}

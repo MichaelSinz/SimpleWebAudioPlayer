@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html>
+	<!-- Simple Web Audio Player - Copyright Michael Sinz -->
+	<head>
+		<title>&#x1F3BC; Simple Web Audio Player</title>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes, interactive-widget=overlays-content" />
+		<meta name="apple-mobile-web-app-capable" content="yes" />
+		<link rel="SHORTCUT ICON" href="Music.ico" />
+		<link href="Music.css" rel="stylesheet" type="text/css" />
+		<link href="Music.color.css" rel="stylesheet" type="text/css" />
+	</head>
+	<body onload="Start();">
+		<table>
+			<tr>
+				<td colspan="2">
+					<div id="Player" style="display:none;">
+						<img class="PlayerButton" id="PrevTrackButton" src="PrevTrackButton.png"/>
+						<img class="PlayerButton" id="PlayButton" src="PlayButton.png"/>
+						<img class="PlayerButton" id="PauseButton" src="PauseButton.png" style="display:none;"/>
+						<img class="PlayerButton" id="NextTrackButton" src="NextTrackButton.png"/>
+						<div id="sliderDiv"><div id="sliderProgressDiv"></div><div id="sliderKnob"></div></div>
+						<div id="progressTime"></div>
+					</div>
+				</th>
+			</tr>
+			<tr id="TrackLine" style="display:none;">
+				<td colspan="2">
+					<div id="ShowDetails" style="display:none;">&nbsp;&#x2689;&nbsp;</div>
+					<div id="HideDetails">&nbsp;&#x2687;&nbsp;</div>
+					<div id="Track" style="display:none;"></div>
+				</td>
+			</tr>
+			<tr id="Details">
+				<td>
+					<div id="Album" style="display:none;"></div>
+					<img id="CoverArt" alt="CoverArt" style="display:none;" src="Record.png" />
+					<img id="BackCoverArt" alt="BackCoverArt" style="display:none;" src="Record.png" />
+				</td>
+				<td id="PlaylistCell" style="display:none;">
+					<div id="UpNext">
+						<img class="PlayerButton" id="SaveNowPlaying" src="SaveButton.png"/>
+						<img class="PlayerButton" id="EjectAll" src="EjectButton.png" />
+						Up&nbsp;next:
+					</div>
+					<div id="PlaylistContainer">
+						<div id="Playlist"></div>
+					</div>
+				</td>
+			</tr>
+			<tr>
+				<td colspan="2">
+					<span id="AddAll" style="display:none;">Add&nbsp;All</span>
+					<div id="PathHeader"><a id="PathLink" href="#">&#x1F517;</a>&nbsp;<span id="PathItems"></span></div>
+				</td>
+			</tr>
+			<tr>
+				<td colspan="2" id="ContainerCell">
+					<div id="Container">
+						<div style="margin: 1em; font-size: 300%;"><img src="Record.png" />Loading...</div>
+					</div>
+				</td>
+			</tr>
+		</table>
+		<div id="SaveCurrent" style="display:none;">
+			<div id="SaveCurrentContents">
+				<img src="Playlist.png" /><br/>
+				Save current playlist as:<br/>
+				<input type="text" id="PlaylistName" /><br/>
+				<button id="SaveButton">Save</button>&nbsp;<button id="CancelButton">Cancel</button>
+			</div>
+		</div>
+		<!-- These are all of the images we use - just pre-cache them now -->
+		<div style="display:none;">
+			<img src="Blank.png" />
+			<img src="Delete.png" />
+			<img src="EjectButton.png" />
+			<img src="Folder.png" />
+			<img src="Knob.png" />
+			<img src="Music.png" />
+			<img src="NextTrackButton.png" />
+			<img src="PauseButton.png" />
+			<img src="PlayButton.png" />
+			<img src="Playlist.png" />
+			<img src="PrevTrackButton.png" />
+			<img src="Record.png" />
+			<img src="SaveButton.png" />
+		</div>
+	</body>
+	<script type="text/javascript" src="MusicList.js"></script>
+	<script type="text/javascript" src="Music.js"></script>
+</html>

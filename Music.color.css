@@ -1,0 +1,270 @@
+/* Simple Web Audio Player - Copyright Michael Sinz */
+/* Media selectors for color scheme */
+
+@media (prefers-color-scheme: light) {
+
+	html,
+	body {
+		color: #000000;
+		background-color: #FFFFFF;
+	}
+
+	#Folders,
+	#Files,
+	#Playlists {
+		-moz-column-rule-color: #BBB;
+		column-rule-color: #BBB;
+	}
+
+	#SaveCurrent {
+		background-color: #FFFFFF80;
+	}
+
+	#SaveCurrentContents {
+		background-color: #ddd;
+		box-shadow: 2px 2px 20px rgba(0, 0, 0, 0.7);
+	}
+
+	#AddAll {
+		border: 0.5px solid #def;
+		box-shadow: 0px 0px 14px rgba(90, 100, 0, 0.4) inset;
+	}
+
+	.Folder,
+	.Audio,
+	.Playlist {
+		border-top-color: #def;
+		border-bottom-color: #def;
+		color: darkblue;
+	}
+
+	.Playlist img.DeletePlaylist:hover {
+		background-color: #FF0000;
+	}
+
+	.Audio {
+		color: #006400;
+	}
+
+	.Playing {
+		background-color: #66aa6640;
+	}
+
+	.Paused {
+		background-color: #66aa6620;
+	}
+
+	.Audio img {
+		background-color: #dddddd80;
+	}
+
+	.Playlist {
+		color: #8b0000;
+	}
+
+	.Folder:hover,
+	.Audio:hover,
+	.Playlist:hover,
+	#HideDetails:hover,
+	#ShowDetails:hover {
+		color: #000000;
+		border: 0.5px solid #555;
+	}
+
+	.Path {
+		box-shadow: 0px 0px 12px rgba(0, 60, 0, 0.4) inset;
+	}
+
+	.Folder:hover,
+	.Audio:hover,
+	.Playlist:hover,
+	.Path:hover,
+	#AddAll:hover,
+	#ShowDetails:hover,
+	#HideDetails:hover,
+	.PlayerButton:active {
+		background-color: #ffff00;
+	}
+
+	#Album:hover {
+		color: #006400;
+	}
+
+	#ContainerCell {
+		box-shadow: 1px 1px 15px rgba(0, 0, 0, 0.4) inset;
+	}
+
+	#Contains hr {
+		color: #add8e6;
+	}
+
+	#CoverArt,
+	#PlaylistContainer {
+		background: #F8F8FD;
+	}
+
+	#CoverArt,
+	#PlaylistContainer,
+	#Player {
+		box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.5);
+	}
+
+	#CoverArt:hover,
+	#PlaylistContainer:hover,
+	#Player:hover {
+		box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.8);
+	}
+
+	#Playlist {
+		color: #006400;
+	}
+
+	#Player {
+		background: #F8F8FD;
+	}
+
+	#sliderDiv {
+		background-color: #463656;
+		box-shadow: 1px 1px 6px #000000F9 inset;
+	}
+
+	#sliderProgressDiv {
+		border-right-color: #ff8;
+		background-color: #00009970;
+		box-shadow: 1px 1px 5px #000000B0 inset;
+	}
+}
+
+@media (prefers-color-scheme: dark) {
+
+	html,
+	body {
+		color: #FFFFFF;
+		background-color: #000000;
+	}
+
+	#Folders,
+	#Files,
+	#Playlists {
+		-moz-column-rule-color: #444;
+		column-rule-color: #444;
+	}
+
+	#SaveCurrent {
+		background-color: #00000080;
+	}
+
+	#SaveCurrentContents {
+		background-color: #222;
+		box-shadow: 2px 2px 20px rgba(255, 255, 255, 0.7);
+	}
+
+	#AddAll {
+		border: 0.5px solid #210;
+		box-shadow: 0px 0px 14px rgba(165, 155, 255, 0.4) inset;
+	}
+
+	.Folder,
+	.Audio,
+	.Playlist {
+		border-top-color: #210;
+		border-bottom-color: #210;
+		color: #EEC;
+	}
+
+	.Playlist img.DeletePlaylist:hover {
+		background-color: #00FFFF;
+	}
+
+	.Audio {
+		color: #EDE;
+	}
+
+	.Playing {
+		background-color: #66aa6640;
+	}
+
+	.Paused {
+		background-color: #66aa6620;
+	}
+
+	.Audio img {
+		background-color: #dddddd80;
+	}
+
+	.Playlist {
+		color: #74FFFF;
+	}
+
+	.Folder:hover,
+	.Audio:hover,
+	.Playlist:hover,
+	#HideDetails:hover,
+	#ShowDetails:hover {
+		color: #FFF;
+		border: 0.5px solid #AAA;
+	}
+
+	.Path {
+		box-shadow: 0px 0px 12px rgba(255, 195, 255, 0.4) inset;
+	}
+
+	.Folder:hover,
+	.Audio:hover,
+	.Playlist:hover,
+	.Path:hover,
+	#AddAll:hover,
+	#ShowDetails:hover,
+	#HideDetails:hover,
+	.PlayerButton:active {
+		background-color: #0000FF;
+	}
+
+	#Album:hover {
+		color: #FFABFF;
+	}
+
+	#ContainerCell {
+		box-shadow: 1px 1px 15px rgba(255, 255, 255, 0.4) inset;
+	}
+
+	#Contains hr {
+		color: #add8e6;
+	}
+
+	#CoverArt,
+	#PlaylistContainer {
+		background: #070702;
+	}
+
+	#CoverArt,
+	#PlaylistContainer,
+	#Player {
+		box-shadow: 2px 2px 10px rgba(255, 255, 255, 0.5);
+	}
+
+	#CoverArt:hover,
+	#PlaylistContainer:hover,
+	#Player:hover {
+		box-shadow: 2px 2px 10px rgba(255, 255, 255, 0.8);
+	}
+
+	#Playlist {
+		color: #F9F;
+	}
+
+	#Player {
+		background: #070702;
+	}
+
+	#sliderDiv {
+		background-color: #463656;
+		box-shadow: 1px 1px 6px #FFFFFFF9 inset;
+	}
+
+	#sliderProgressDiv {
+		border-right-color: #007;
+		background-color: #00009970;
+		box-shadow: 1px 1px 5px #FFFFFFB0 inset;
+	}
+}

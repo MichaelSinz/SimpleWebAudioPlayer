@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!--Simple Web Audio Player - Copyright Michael Sinz-->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="5 0 220 220">
+  <path fill="#333" d="M187.14 37.99C167.87 18.72 142.25 8.108 115 8.108S62.128 18.72 42.86 37.99c-19.27 19.27-29.883 44.89-29.883 72.14 0 27.253 10.612 52.873 29.882 72.142 19.27 19.27 44.89 29.883 72.14 29.883s52.87-10.61 72.14-29.88c19.24-19.24 29.837-44.862 29.837-72.144 0-27.28-10.597-52.9-29.836-72.14zm-72.668 74.846a2.967 2.967 0 1 1 0-5.936 2.968 2.968 0 0 1 0 5.936z"/>
+  <path d="M115 10.108c26.716 0 51.834 10.405 70.727 29.296 39 39 39 102.456 0 141.456-18.893 18.89-44.01 29.295-70.727 29.295-26.717 0-51.835-10.404-70.727-29.297-18.892-18.892-29.296-44.01-29.296-70.727S25.38 58.298 44.273 39.406C63.165 20.513 88.283 10.108 115 10.108m0-4c-27.786 0-53.908 10.82-73.556 30.47-19.647 19.645-30.467 45.768-30.467 73.553 0 27.787 10.82 53.91 30.467 73.556 19.648 19.648 45.77 30.47 73.556 30.47 27.784 0 53.906-10.82 73.555-30.468 19.617-19.617 30.422-45.74 30.422-73.557 0-27.815-10.805-53.937-30.422-73.555C168.907 16.93 142.785 6.108 115 6.108z"/>
+  <radialGradient id="a" cx="890.222" cy="247.956" r="98.154" gradientTransform="scale(1 -1) rotate(-45 216.658 945.616)" gradientUnits="userSpaceOnUse">
+    <stop offset=".55"/>
+    <stop offset="1" stop-opacity="0"/>
+  </radialGradient>
+  <path fill="url(#a)" d="M185.71 39.158C146.66.105 83.343.105 44.29 39.158l141.42 141.42c39.054-39.053 39.054-102.368 0-141.42z"/>
+  <radialGradient id="b" cx="890.221" cy="200.962" r="98.156" gradientTransform="rotate(45 467.285 -841.745)" gradientUnits="userSpaceOnUse">
+    <stop offset=".55"/>
+    <stop offset="1" stop-opacity="0"/>
+  </radialGradient>
+  <path fill="url(#b)" d="M44.29 180.58c-39.054-39.053-39.053-102.37 0-141.422l141.42 141.42c-39.052 39.054-102.368 39.054-141.42.002z"/>
+  <circle cx="115" cy="110.132" r="88.918" fill="none" stroke="#000" stroke-width=".5"/>
+  <circle cx="115" cy="110.132" r="80.229" fill="none" stroke="#000" stroke-width=".5"/>
+  <circle cx="115" cy="110.132" r="65.845" fill="none" stroke="#000" stroke-width=".5"/>
+  <circle cx="115" cy="110.132" r="55.24" fill="none" stroke="#000" stroke-width=".5"/>
+  <path d="M115 62.808c-26.136 0-47.324 21.188-47.324 47.324 0 26.137 21.188 47.324 47.324 47.324s47.324-21.188 47.324-47.324S141.136 62.808 115 62.808zm-.528 50.028a2.967 2.967 0 1 1 0-5.936 2.968 2.968 0 0 1 0 5.936z"/>
+  <linearGradient id="c" x1="146.943" x2="194.998" y1="-140.81" y2="-92.755" gradientTransform="matrix(1 0 0 -1 -55.96 -6.66)" gradientUnits="userSpaceOnUse">
+    <stop offset="0" stop-color="#FFF" stop-opacity="0"/>
+    <stop offset=".429" stop-color="#FFF" stop-opacity=".214"/>
+    <stop offset=".5" stop-color="#FFF" stop-opacity=".25"/>
+    <stop offset=".572" stop-color="#FFF" stop-opacity=".214"/>
+    <stop offset="1" stop-color="#FFF" stop-opacity="0"/>
+  </linearGradient>
+  <path fill="url(#c)" d="M72.482 19.54C62.668 24.154 53.59 30.4 45.575 38.135l-2.573 2.573c-7.727 8.005-13.968 17.075-18.58 26.877L157.543 200.71c9.78-4.6 18.83-10.823 26.822-18.522l2.633-2.633c7.826-8.115 14.014-17.234 18.555-26.938L72.482 19.54zm41.99 93.296a2.967 2.967 0 1 1 0-5.936 2.968 2.968 0 0 1 0 5.936z"/>
+  <radialGradient id="d" cx="115" cy="110.132" r="37.793" gradientUnits="userSpaceOnUse">
+    <stop offset="0" stop-color="#0ff"/>
+    <stop offset="1" stop-color="#00BFBF"/>
+  </radialGradient>
+  <path fill="url(#d)" stroke="#000" stroke-width=".5" d="M115 72.34c-20.873 0-37.793 16.92-37.793 37.792s16.92 37.793 37.793 37.793 37.793-16.92 37.793-37.793S135.873 72.34 115 72.34zm-.528 40.496a2.967 2.967 0 1 1 0-5.936 2.968 2.968 0 0 1 0 5.936z"/>
+  <circle cx="115" cy="110.132" r="34.014" fill="none" stroke="#00FEFE" stroke-width=".6"/>
+  <text x="115" y="104" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#000">Simple Web</text>
+  <text x="115" y="122" text-anchor="middle" font-family="sans-serif" font-size="9.5" fill="#000">Audio Player</text>
+  <text x="115" y="131" text-anchor="middle" font-family="sans-serif" font-size="5" fill="#000">Copyright &#169;</text>
+  <text x="115" y="137" text-anchor="middle" font-family="sans-serif" font-size="5" fill="#000">Michael Sinz</text>
+</svg>
