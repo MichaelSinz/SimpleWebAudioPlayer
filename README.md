@@ -95,7 +95,7 @@ The Swift implementation leveraged Apple's powerful media frameworks, which prov
 ### Rust and Audio Processing Crates
 The Rust implementation faced initial challenges with audio format compatibility, as the Rust ecosystem's audio processing crates don't yet match Apple's comprehensive media support.  On Intel machines, keeping up with Apple's optimized libraries would have required some "unsafe" and platform-specific code patterns and the whole point of Rust was to be clean and "safe" code.
 
-However, the most fascinating discovery came after upgrading to Apple Silicon Macs.  To my astonishment, the Rust code was now slightly faster that the Swift code...  That is until I realized that I had not updated my Rust compiler to compile to native ARM code.  That means that the x86_64 Rust code, running via Rosetta 2 on the Apple Silicon ARM CPUs was actually running faster than the natively compiled Swift version of the code - source code that was unchanged from before.  This just shows how good the Rosetta 2 layer and the Apple Silicon CPUs are in that it ran significantly faster than on my Intel machines (including a water cooled, overclocked beast of a desktop) all while emulating the CPU. Once I rebuilt the Rust code to native ARM binaries, the performance gap became impressive.  Somehow the Apple media libraries or the Swift compiler (likely more the media libraries) were not as carefully optimized.  There are more details here and they can be seen in the [Rust vs. Swift & Intel vs Apple Silicon](rust-vs-swift.md) document that I had published elsewhere some time ago but is part of this project since it came out of this.
+However, the most fascinating discovery came after upgrading to Apple Silicon Macs.  To my astonishment, the Rust code was now slightly faster that the Swift code...  That is until I realized that I had not updated my Rust compiler to compile to native ARM code.  That means that the x86_64 Rust code, running via Rosetta 2 on the Apple Silicon ARM CPUs was actually running faster than the natively compiled Swift version of the code - source code that was unchanged from before.  This just shows how good the Rosetta 2 layer and the Apple Silicon CPUs are in that it ran significantly faster than on my Intel machines (including a water cooled, overclocked beast of a desktop) all while emulating the CPU. Once I rebuilt the Rust code to native ARM binaries, the performance gap became impressive.  Somehow the Apple media libraries or the Swift compiler (likely more the media libraries) were not as carefully optimized.  There are more details here and they can be seen in the [Rust vs. Swift & Intel vs Apple Silicon](http://sinz.org/rust-vs-swift.html) document that I had published elsewhere some time ago but is part of this project since it came out of this.
 
 This demonstrated that Rust's performance is very good and may even be superior except when special hand-optimizations or CPU special instructions could be leveraged in a way that the compiler does not (yet) leverage/support.  Memory-safe code doesn't have to come with a performance penalty - a principle we were proving years ago while working on Microsoft's secret Midori project.
 
@@ -116,7 +116,9 @@ This experiment revealed important insights about the current state of AI coding
 
 For simpler tasks, AI coding tools can be remarkably effective, but this project operated at the boundary of current AI capabilities.  The experience reinforced that skilled engineers will remain essential for the foreseeable future, with AI serving as a productivity multiplier rather than a replacement.
 
-You can find detailed performance comparisons in the [`rust-vs-swift.md`](rust-vs-swift.md) file.
+### Performance of the various versions
+
+You can find detailed performance comparisons in the [Rust vs Swift](http://sinz.org/rust-vs-swift.html) page and the [Waver Performance](http://sinz.org/waver-perf.html) which includes the C code version in the mix along with 4 different generations of MacBookPro machines (2 Intel and 2 Apple Silicon).
 
 ## Technical Implementation
 
@@ -264,19 +266,133 @@ While the player works on most modern browsers, there are some compatibility con
 
 ## Building the Project
 
-If you want to generate your own waveform PNGs, you can use one of the waveform generation tools in the `c`, `swift`, or `rust` directories.  I recommend the Rust version for its superior performance, file compression, and cross-platform compatibility:
+The project includes a Makefile that automates building all components, including the waveform generation tools and converting SVG files to PNG format for better browser compatibility.
+
+To build all necessary components:
 
 ```bash
-cd rust
-cargo build --release
-./target/release/waver path/to/your/music.mp3
+make build
 ```
 
-This will create a `music.mp3.png` file that the player will automatically detect and use.  The Rust implementation produces significantly smaller PNG files than the Swift version, while also being much faster, especially on Apple Silicon Macs.  Unlike the Swift version which only works on macOS, the Rust version can be compiled and run on virtually any platform, including Linux and Windows.
+This will generate PNG images from SVG sources and build the default waveform generation tool (Waver-rust by default).
 
-Note that you can give the tool a directory and it will scan for all MP3 files that do not yet have a corresponding PNG file and create one for it.  It does this very quickly and in parallel across your CPU cores.
+### About Waveform Generation
 
-A build system for the complete project will be included in a future update.
+The waveform generator creates PNG visualizations of audio files that are displayed in the progress slider during playback. These PNG files are:
+- Optimized 2-bit images with tiny file sizes
+- Pre-generated to avoid browser processing overhead
+- Created while maintaining left/right channel separation for stereo visualization
+
+The project includes three implementations of the waveform generator:
+- **Rust version** (recommended): Superior performance, better file compression, cross-platform compatibility
+- **Swift version**: Uses Apple's media frameworks, macOS only
+- **C version**: Experimental implementation created through AI-assisted coding
+
+You can choose which implementation to use by modifying the `WAVER` variable in the Makefile:
+
+```makefile
+# The version of Waver to use for waveform generation
+WAVER=Waver-rust  # Options: Waver-rust, Waver-swift, Waver-c
+```
+
+To build just the default waveform generator for manual use:
+
+```bash
+make waver
+```
+
+This will create the selected waveform tool (e.g., `Waver-rust`) in the project directory, which you can then use manually:
+
+```bash
+./Waver-rust path/to/your/music.mp3
+```
+
+After building the waveform tool, you can also use the Makefile to generate waveform PNGs for your entire music library:
+
+```bash
+# To build all waveform PNGs in your music directory
+make localwaves
+```
+
+The tool will scan for all MP3 files that don't yet have a corresponding PNG file and create one for each. It works very quickly and in parallel across your CPU cores.
+
+## Using the Makefile
+
+The project includes a comprehensive Makefile that automates many common tasks. This makes it easier to build, test, and deploy the player along with all its assets.
+
+### Prerequisites
+
+Before using the Makefile, you'll need several tools installed on your system:
+
+- **Basic Tools**:
+  - `make` - The build system itself
+  - `rsync` - Used for copying files during deployment
+  - A modern web browser for testing
+
+- **For SVG to PNG Conversion**:
+  - Either `rsvg-convert` (from librsvg) or `resvg` - For converting SVG graphics to PNG
+    - Install `resvg` with: `cargo install resvg`
+    - Install `rsvg-convert` with: `brew install librsvg` (macOS) or `apt install librsvg2-bin` (Debian/Ubuntu)
+
+- **For Waver Tools**:
+  - **Rust Version** (recommended):
+    - Rust and Cargo - To build the Rust implementation
+  - **Swift Version** (macOS only):
+    - Swift compiler - To build the Swift implementation
+    - Xcode Command Line Tools
+  - **C Version**:
+    - C compiler (gcc or clang) - To build the C implementation
+
+- **For Local Testing**:
+  - `static-web-server` - A simple Rust-based web server for testing
+    - Install with: `cargo install static-web-server`
+  - `killall` command - For process management (built into most Unix-like systems)
+
+Most of these tools can be installed via package managers like `apt`, `brew`, or `winget` depending on your operating system.
+
+### Key Makefile Targets
+
+- **`make art`**: Converts all SVG files to PNG format for better browser compatibility
+- **`make waver`**: Builds the default waveform generation tool (currently Waver-rust)
+- **`make waver-all`**: Builds all waveform generator implementations (Swift, Rust, and C)
+- **`make build`**: Builds all PNG images and the default waveform tool
+- **`make build-all`**: Builds all PNG images and all waveform tool implementations
+- **`make clean`**: Removes all generated files and build artifacts
+
+### Deployment and Testing Targets
+
+The Makefile also includes targets to help with deploying to your local music library:
+
+- **`make localbuild`**: Copies the web player files to your music directory (set in LOCALDIR variable)
+- **`make localwaves`**: Generates waveform PNG files for all MP3s in your music directory
+- **`make localtest`**: Starts a simple web server to test the player with your music library
+
+### Customization
+
+Before using the deployment targets, you should customize these variables in the Makefile:
+
+```makefile
+# This is the local directory where you have your music library
+LOCALDIR=~/Music/MP3/
+
+# The version of Waver to use for waveform generation
+WAVER=Waver-rust
+
+# Command to open your browser
+OPEN_BROWSER=open
+```
+
+### Example Workflow
+
+A typical workflow for setting up the player with your music library:
+
+1. Edit the Makefile to set `LOCALDIR` to your music directory
+2. Run `make build` to generate all needed assets
+3. Run `make localbuild` to copy the player to your music directory
+4. Run `make localwaves` to generate waveform PNGs for your music files
+5. Run `make localtest` to start a test server and open the player in your browser
+
+The SVG to PNG conversion process uses either `rsvg-convert` or `resvg` tools, which you'll need to install if you want to regenerate the PNG files from the SVG sources.
 
 ## Future Directions
 

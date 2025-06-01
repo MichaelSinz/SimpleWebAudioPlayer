@@ -1,7 +1,23 @@
-# Simple Web Audio Player - Copyright Michael Sinz
+# =============================================================================
+# Simple Web Audio Player - Makefile
+# Copyright Michael Sinz
+#
+# This Makefile automates various tasks for building, deploying, and testing
+# the Simple Web Audio Player components, including:
+#  - Converting SVG artwork to PNG files for browser compatibility
+#  - Building waveform generation tools in various languages
+#  - Deploying to a local music directory and generating waveforms
+#  - Setting up a local test server
+# =============================================================================
 
+# =============================================================================
+# SOURCE AND ARTWORK FILES
+# =============================================================================
+
+# Core source files for the web player
 SRC=Music.html Music.js Music.css Music.color.css Music.py
 
+# Artwork files that need to be converted from SVG to PNG
 ART=Music.ico \
 	Blank.png \
 	Delete.png \
@@ -18,85 +34,106 @@ ART=Music.ico \
 	SaveButton.png \
 	Speaker.png
 
+# =============================================================================
+# CONFIGURATION VARIABLES - CUSTOMIZE THESE FOR YOUR ENVIRONMENT
+# =============================================================================
+
 # This is the local directory where you have your music library
-# On my machine I have my MP3 library in here.  This is also where I
-# publish the Music web site code to.  Set this to your directory.
+# Set this to your own music directory before using localbuild/localwaves
 LOCALDIR=~/Music/MP3/
 
-# The version of Waver I use to actually build the PNG waveform files
+# The version of Waver to use for waveform generation
+# Options: Waver-rust (recommended), Waver-swift (macOS only), Waver-c
 WAVER=Waver-rust
 
-# The "open" command is how I start the browser on the given URL - you
-# may have another mechanism
+# Command to open a browser to the test URL
+# This may need to be changed depending on your OS:
+#   - macOS: use 'open'
+#   - Linux: use 'xdg-open'
+#   - Windows: use 'start'
 OPEN_BROWSER=open
 
-# Unfortunately, not all of the browsers let me use SVG natively in the page
-# in all conditions where I can use PNG images.  So, I have this rule set up
-# to convert SVG images into PNG images.  Note that I am using a tool known as
-# rsvg-convert but you may wish to use resvg (See https://github.com/linebender/resvg)
-# That is a Rust implementation that is gaining a lot of support and traction.
-# Unfortunately, the PNG files it creates are about twice the size of the ones
-# the rsvg-convert tool makes.
+# =============================================================================
+# SVG TO PNG CONVERSION
+# =============================================================================
+
+# This rule converts SVG files to PNG format for better browser compatibility
+# Two options are provided:
+#   1. rsvg-convert - Produces smaller files (default)
+#   2. resvg - A Rust implementation with growing support
+# Uncomment the tool you prefer to use
 .SUFFIXES:
 .SUFFIXES: .svg .png
 .svg.png:
 	# resvg --width 256 --height 256 $< $@
 	rsvg-convert -w 256 -h 256 -o $@ $<
 
+# =============================================================================
+# MAIN BUILD TARGETS
+# =============================================================================
+
+# Default target shows help
 default: help
 
+# Remove all generated files and build artifacts
 clean:
 	(cd c; make clean)
 	rm -rf *.png Waver-* swift/.build rust/target
 	find . -name .DS_Store -delete
 
+# Build just the default waveform generator tool
 waver: $(WAVER)
 	@true
 
+# Build all waveform generator implementations
 waver-all: Waver-swift Waver-rust Waver-c
 	@true
 
+# Generate all artwork (SVG to PNG conversion)
 art: $(SRC) $(ART)
 	@true
 
-# Simple build target that makes sure all these elements are built
+# Main build target - builds artwork and default waveform tool
 build: art $(WAVER)
 	@true
 
+# Build everything - all artwork and all waveform implementations
 build-all: art waver-all
 	@true
 
-###############################################################################
+# =============================================================================
+# LOCAL DEPLOYMENT TARGETS
+# =============================================================================
 
-# Copy the Simple Web Audio Player to the LOCALDIR, including the
-# artwork.  I use RSYNC such that we can see which files have actually changed
-# in the target location.  This way we don't churn the target if it was not
-# actually changed.  (Such as just a rebuild of the png files but no change)
+# Copy the Simple Web Audio Player to the LOCALDIR, including artwork
+# Uses rsync to only update files that have changed
 localbuild: art
 	[ -d $(LOCALDIR) ]
 	rsync -cav $(SRC) $(ART) $(LOCALDIR)
 
-# Build the .png wave files for the MP3 files in the local directory
-# Once this is done, this runs very quickly and notices that there is nothing
-# to do.
+# Build waveform PNG files for all MP3 files in the local music directory
+# This is fast and only processes files that don't already have waveform PNGs
 localwaves: waver
 	[ -d $(LOCALDIR) ]
 	./$(WAVER) $(LOCALDIR)
 
-# There is a nice little Rust web server for static web pages that is great
-# for testing.  It compiles anywhere Rust does.  static-web-server is
-# what it is.  If you don't have it, we will fail this.
-# See https://github.com/static-web-server/static-web-server
-# Unfortunately, this is likely only working for Linux/MacOS unless you
-# have killall available for Windows.
+# Start a local web server for testing the player with your music library
+# Requires the static-web-server tool (install with: cargo install static-web-server)
+# Note: This works on Linux/macOS, may need adjustment for Windows
 localtest: localbuild localwaves
 	which static-web-server
 	(killall static-web-server; static-web-server --host 127.0.0.1 --port 8088 --root $(LOCALDIR) & true)
 	$(OPEN_BROWSER) http://localhost:8088/Music.html
 
-###############################################################################
+# =============================================================================
+# WAVEFORM GENERATOR IMPLEMENTATIONS
+# =============================================================================
 
-# Build the Swift version of the Waver tool
+# =============================================================================
+# Swift implementation - macOS only
+# =============================================================================
+
+# Build the Swift version
 swift/.build/release/Waver: $(wildcard swift/Sources/*.swift) $(wildcard swift/*.swift)
 	(cd swift ; swift build -j $$(sysctl -n hw.ncpu) -c release)
 
@@ -106,17 +143,18 @@ Waver-swift: swift/.build/release/Waver
 	strip $@
 	ls -l $@
 
-###############################################################################
+# =============================================================================
+# Rust implementation - cross-platform (recommended)
+# =============================================================================
 
-# Build the Rust version of the Waver tool  This first part is actually
-# running the unit tests
+# Run the Rust tests first
 rust/target/release/test.log: $(wildcard rust/src/*.rs) $(wildcard rust/src/*/*.rs) rust/Cargo.toml
 	mkdir -p rust/target/release
 	(cd rust; cargo test --all-features --release -- --nocapture) >$@.err || (cat $@.err; exit 9)
 	mv -f $@.err $@
 	cat $@
 
-# This is the actual build
+# Build the Rust implementation
 rust/target/release/waver: $(wildcard rust/src/*.rs) $(wildcard rust/src/*/*.rs) rust/Cargo.toml rust/target/release/test.log
 	(cd rust; cargo build --all-features --release)
 
@@ -126,9 +164,11 @@ Waver-rust: rust/target/release/waver
 	strip $@
 	ls -l $@
 
-###############################################################################
+# =============================================================================
+# C implementation - cross-platform (experimental)
+# =============================================================================
 
-# Build the C version of the Waver tool
+# Build the C version
 c/waver: $(wildcard c/src/*) $(wildcard c/include/*) c/Makefile
 	(cd c; make)
 
@@ -138,7 +178,9 @@ Waver-c: c/waver
 	strip $@
 	ls -l $@
 
-###############################################################################
+# =============================================================================
+# HELP INFORMATION
+# =============================================================================
 
 help:
 	@echo "make art        - Build all PNG images from SVG"
