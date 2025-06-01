@@ -18,6 +18,21 @@ All of its behaviors are client-side.  That is, there is no server side logic or
 
 As you can also see, the user interface is a bit dated based on current "standards" of flat interfaces.  But I did most of the work years ago, when flat was not the style plus, I am not so sure I like the flat, hard to identify interface elements.
 
+### Live Demo
+
+Experience the Simple Web Audio Player in action with our [working demo](http://sinz.com/SimpleWebAudioPlayer/Music.html) featuring Creative Commons Zero licensed music. The demo version is marked with a "Demo" label at the top and bottom of the screen, but otherwise provides the full functionality of the player.  The demo only has a few albums in it as a public demo needed to use publicly available and freely licensed music.
+
+#### About the Music in the Demo
+The demo showcases these Creative Commons Zero licensed works:
+
+* [Open Goldberg Variations BWV 988 - Kimiko Ishizaka](https://www.kickstarter.com/projects/opengoldberg/open-goldberg-variations-setting-bach-free)
+  The original project that kickstarted (pun intended) these open & Creative Commons Zero licensed recordings and sheet music.
+
+* [Well-Tempered Clavier, Book 1 - Kimiko Ishizaka](https://welltemperedclavier.org/index.html)
+
+* [The Art of the Fugue (Kunst der Fuge), BWV 1080 - Kimiko Ishizaka](https://kimikoishizaka.bandcamp.com/album/j-s-bach-the-art-of-the-fugue-kunst-der-fuge-bwv-1080)
+  This album intentionally doesn't include a Cover.jpg file to demonstrate how the player can extract cover art from the track metadata when no album cover is provided.
+
 ## Features
 
 - **Pure Client-Side Implementation**: Works with a simple read-only HTTP server or even directly from local disk
