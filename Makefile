@@ -47,7 +47,7 @@ default: help
 
 clean:
 	(cd c; make clean)
-	rm -rf *.png Waver-* swift/.build rust/target perf/reports perf/perf_summary.md
+	rm -rf *.png Waver-* swift/.build rust/target
 	find . -name .DS_Store -delete
 
 waver: $(WAVER)
