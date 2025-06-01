@@ -148,7 +148,7 @@ function GetStartPath() {
 	if (MusicStorage.path) {
 		return MusicStorage.path;
 	}
-	return '/Music/';
+	return '/';
 }
 
 /**
