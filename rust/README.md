@@ -98,10 +98,6 @@ This version uses several optimizations to generate highly efficient PNG files:
 ## Building from Source
 
 ```bash
-# Clone the repository
-git clone https://github.com/yourusername/waver.git
-cd waver
-
 # Build in release mode
 cargo build --release
 
