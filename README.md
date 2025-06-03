@@ -367,6 +367,14 @@ The Makefile also includes targets to help with deploying to your local music li
 - **`make localwaves`**: Generates waveform PNG files for all MP3s in your music directory
 - **`make localtest`**: Starts a simple web server to test the player with your music library
 
+### Demo Website Targets
+
+The Makefile includes targets to build and test a local version of the demo site.  This will download the same music files that are freely available as a `.tgz` archive and extract them into the `Demo` directory, along with building all of the rest of the Simple Web Audio Player into that directory.
+
+- **`make demo`**: Builds the demo version of the web audio player with open source music
+- **`make demotest`**: Starts a simple web server to test the demo site locally
+- **`make democlean`**: Cleans the demo files (except for the large music download)
+
 ### Customization
 
 Before using the deployment targets, you should customize these variables in the Makefile:

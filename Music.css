@@ -61,19 +61,35 @@ td {
 	text-align: center;
 }
 
-#SaveCurrentContents {
-	font-size: 125%;
-	background-color: #ddd;
-	border-radius: 11px;
-	padding: 2em;
-	margin: auto;
-	box-shadow: 2px 2px 20px rgba(0, 0, 0, 0.7);
-	display: inline-block;
+#SaveButton,
+#CancelButton,
+#PlaylistName {
+	font-size: 100%;
+	margin: 0.2em;
 }
 
 #PlaylistName {
-	width: 17em;
+	width: 12em;
 }
+
+#SaveCurrentContents {
+	font-size: 140%;
+	background-color: #ddd;
+	box-shadow: 0px 0px 2em rgba(0, 0, 0, 0.7);
+	border-radius: 1em;
+	padding: 1.2em;
+	margin-left: auto;
+	margin-right: auto;
+	margin-top: 2em;
+	display: inline-block;
+}
+
+#SaveCurrentContents img {
+	height: 4em;
+	border-radius: 0.4em;
+	box-shadow: 0px 0px 0.6em rgba(0, 0, 0, 0.5);
+}
+
 
 #AddAll {
 	font-weight: bold;
@@ -144,7 +160,6 @@ td {
 	flex-grow: 1;
 }
 
-#SaveCurrentContents img,
 .Folder img,
 .Audio img,
 .Playlist img {
