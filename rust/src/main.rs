@@ -27,8 +27,6 @@ mod error;
 mod image;
 mod examples;
 
-use std::sync::Mutex;
-
 use rayon::prelude::*;
 use walkdir::WalkDir;
 
@@ -85,38 +83,55 @@ fn main() -> std::result::Result<(), Box<dyn std::error::Error>> {
         args.print_verbose(&format!("Found {} audio files to process", audio_files.len()));
     }
 
-    // Process files in parallel, collecting errors
-    // PERFORMANCE: Parallel processing is critical for handling multiple files efficiently
-    // This section uses Rayon's parallel iterator to process files concurrently
-    // while safely collecting errors using a synchronized Mutex
-    let errors = Mutex::new(Vec::<String>::new());
+    // If there is exactly one file and an output filename was provided,
+    // we don't even need Rayon or a loop. We just run it.
+    if audio_files.len() == 1 && args.output_filename.is_some() {
+        let file_path = &audio_files[0];
+        let output_path = args.output_filename.as_ref().unwrap();
 
-    // Convert PathBuf to AudioPath for processing
-    audio_files.into_par_iter().for_each(|file_path| {
-        // For each file, create a validated AudioPath
-        match cli::AudioPath::new(&file_path) {
-            Ok(audio_path) => {
-                let output_file = args
-                    .output_filename
-                    .clone()
-                    .unwrap_or_else(|| format!("{}.png", file_path.display()));
+        // We wrap it in AudioPath for the API, but there's no loop overhead.
+        let audio_path = cli::AudioPath::new(file_path)?;
 
-                if let Err(e) = generate_waveform(&audio_path, &output_file, &args) {
-                    let error_msg = format!("{}: {}", file_path.display(), e);
-                    args.print_to_stderr(&error_msg);
-                    errors.lock().unwrap().push(error_msg);
-                }
-            },
-            Err(e) => {
-                let error_msg = format!("Invalid audio path {}: {}", file_path.display(), e);
-                args.print_to_stderr(&error_msg);
-                errors.lock().unwrap().push(error_msg);
-            }
+        if let Err(e) = generate_waveform(&audio_path, output_path, &args) {
+            args.print_to_stderr(&format!("{}: {}", file_path.display(), e));
+            return Err(e.into());
         }
-    });
+
+        args.print_to_stdout(&format!("Created {}", output_path));
+        return Ok(());
+    }
+
+    // Parallel processing in order to handle multiple files efficiently
+    // This section uses Rayon's parallel map to process files concurrently
+    // while safely collecting any errors.
+    // We transform each PathBuf into a Result<(), String>
+    // and then filter any errors from the operation
+    // so we end up with just the errors in a Vec<String>
+    let errors: Vec<String> = audio_files
+        .into_par_iter()
+        .map(|file_path| {
+            // Attempt to create the AudioPath
+            let audio_path = match cli::AudioPath::new(&file_path) {
+                Ok(p) => p,
+                Err(e) => return Err(format!("Invalid audio path {}: {}", file_path.display(), e)),
+            };
+
+            // In this path, we ALWAYS generate a new string. No clones, no Arcs, no Cow.
+            let output_file = format!("{}.png", file_path.display());
+
+            // Attempt to generate the waveform
+            if let Err(e) = generate_waveform(&audio_path, &output_file, &args) {
+                let error_msg = format!("{}: {}", file_path.display(), e);
+                args.print_to_stderr(&error_msg);
+                Err(error_msg)
+            } else {
+                Ok(())
+            }
+        })
+        .filter_map(|result| result.err()) // Only keep the errors
+        .collect();
 
     // Report any errors
-    let errors = errors.lock().unwrap();
     if !errors.is_empty() {
         return Err(Box::new(WaverError::generation_error(format!(
             "{} errors occurred while processing files",
