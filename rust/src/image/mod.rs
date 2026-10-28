@@ -3,7 +3,7 @@ use std::fs::File;
 use std::io::BufWriter;
 use std::path::Path;
 
-use png::{Encoder, FilterType};
+use png::{Encoder, Filter};
 
 use crate::cli::{Height, Width};
 use crate::color::Rgba;
@@ -259,11 +259,11 @@ impl WaveImage {
         encoder.set_palette(&palette);
         encoder.set_trns(&transparent);
 
-        // Optimize for waveform imagery which typically has vertical runs
-        encoder.set_filter(FilterType::Up);
-
         // Use maximum compression
-        encoder.set_compression(png::Compression::Best);
+        encoder.set_compression(png::Compression::High);
+
+        // Set the waveform filter after compression, which resets it.
+        encoder.set_filter(Filter::Up);
 
         // Write the PNG data
         let mut writer = encoder.write_header()?;

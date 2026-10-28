@@ -2,16 +2,19 @@
 use std::fs::File;
 use std::path::Path;
 
-use symphonia::core::audio::{AudioBuffer, Signal};
-use symphonia::core::codecs::{DecoderOptions, CODEC_TYPE_NULL};
+use symphonia::core::audio::{Audio, AudioBuffer};
+use symphonia::core::codecs::audio::{AudioDecoderOptions, CODEC_ID_NULL_AUDIO};
+use symphonia::core::formats::probe::Hint;
 use symphonia::core::formats::FormatOptions;
 use symphonia::core::io::MediaSourceStream;
 use symphonia::core::meta::MetadataOptions;
-use symphonia::core::probe::Hint;
 
 use crate::cli::{AudioPath, WaverArgs};
 use crate::error::{Result, WaverError};
 use crate::image::WaveImage;
+
+#[cfg(test)]
+mod tests;
 
 /// Generates a waveform visualization from an audio file.
 ///
@@ -51,7 +54,12 @@ pub fn generate_waveform(
 
     // Save or log the result
     if !args.dry_run {
-        image.save_png(&args.background_color, &args.left_color, &args.right_color, output_path)?;
+        image.save_png(
+            &args.background_color,
+            &args.left_color,
+            &args.right_color,
+            output_path,
+        )?;
         args.print_to_stdout(&format!("Created {}", output_path.display()));
     } else if args.verbose {
         args.print_verbose(&format!("DryRun {}", output_path.display()));
@@ -89,45 +97,51 @@ fn process_audio_file(input_path: &Path, image: &mut WaveImage, width: u32) -> R
     let file = File::open(input_path)?;
     let mss = MediaSourceStream::new(Box::new(file), Default::default());
 
-    let probed = symphonia::default::get_probe().format(
+    let mut format = symphonia::default::get_probe().probe(
         &Hint::new(),
         mss,
-        &FormatOptions::default(),
-        &MetadataOptions::default(),
+        FormatOptions::default(),
+        MetadataOptions::default(),
     )?;
 
     // Extract the first audio track
-    let mut format = probed.format;
-    let track = format
+    let (track, codec_params) = format
         .tracks()
         .iter()
-        .find(|t| t.codec_params.codec != CODEC_TYPE_NULL)
-        .ok_or_else(|| WaverError::generation_error(format!(
-            "No audio track found in '{}'",
-            input_path.display()
-        )))?;
+        .find_map(|track| {
+            let params = track.codec_params.as_ref()?.audio()?;
+            (params.codec != CODEC_ID_NULL_AUDIO).then_some((track, params))
+        })
+        .ok_or_else(|| {
+            WaverError::generation_error(format!(
+                "No audio track found in '{}'",
+                input_path.display()
+            ))
+        })?;
 
     // Initialize decoder
-    let mut decoder = symphonia::default::get_codecs().make(
-        &track.codec_params,
-        &DecoderOptions { ..Default::default() },
-    )?;
+    let mut decoder = symphonia::default::get_codecs()
+        .make_audio_decoder(codec_params, &AudioDecoderOptions::default().gapless(false))?;
+    let track_id = track.id;
 
-    // Get channel information
-    let channel_count = track
-        .codec_params
-        .channels
-        .map(|c| c.count())
-        .unwrap_or(1)
-        .min(2) as usize;
-
-    // Get total number of frames (samples per channel) for scaling calculation
-    let total_samples = track.codec_params.n_frames.unwrap_or(0).max(1) as u64;
+    // Preserve untrimmed decoding: num_frames now excludes encoder delay and padding.
+    let total_samples = track
+        .num_frames
+        .and_then(|frames| frames.checked_add(u64::from(track.delay.unwrap_or(0))))
+        .and_then(|frames| frames.checked_add(u64::from(track.padding.unwrap_or(0))))
+        .filter(|&frames| frames > 0)
+        .ok_or_else(|| {
+            WaverError::generation_error(format!(
+                "Missing or invalid audio frame count in '{}'",
+                input_path.display()
+            ))
+        })?;
 
     // Calculate samples per pixel and the fractional
     // samples per pixel in 1/width units - since we have
     // to use width as u64 a number of times, do that conversion once
     let width64 = width as u64;
+    let total_samples = total_samples.max(width64);
     let samples_per_pixel = total_samples / width64;
     let fractional_samples = total_samples % width64;
 
@@ -137,19 +151,42 @@ fn process_audio_file(input_path: &Path, image: &mut WaveImage, width: u32) -> R
     let mut sample_progress = samples_per_pixel;
     let mut partial_progress = 0 as u64;
     let mut pixel_pos = 0;
+    let mut stereo = false;
 
     // Process audio stream packet by packet
-    while let Ok(packet) = format.next_packet() {
+    while let Some(packet) = format.next_packet()? {
+        if packet.track_id != track_id {
+            continue;
+        }
         let decoded = decoder.decode(&packet)?;
-        let mut buffer = AudioBuffer::<f32>::new(decoded.capacity() as u64, *decoded.spec());
-        decoded.convert(&mut buffer);
+        if decoded.is_empty() {
+            continue;
+        }
+        let mut buffer = AudioBuffer::<f32>::new(decoded.spec().clone(), decoded.frames());
+        buffer.render_uninit(Some(decoded.frames()));
+        decoded.copy_to(&mut buffer);
+
+        let left_samples = buffer
+            .plane(0)
+            .ok_or_else(|| WaverError::generation_error("Decoded audio has no channels"))?;
+        stereo = buffer.num_planes() > 1;
+        let right_samples = if stereo {
+            Some(buffer.plane(1).ok_or_else(|| {
+                WaverError::generation_error("Decoded audio is missing its second channel")
+            })?)
+        } else {
+            None
+        };
 
         // Process each frame in the current packet
         for frame in 0..buffer.frames() {
+            if pixel_pos >= width {
+                break;
+            }
             // Update max amplitude values for each channel
-            left = left.max(buffer.chan(0)[frame].abs().min(1.0));
-            if channel_count > 1 {
-                right = right.max(buffer.chan(1)[frame].abs().min(1.0));
+            left = left.max(left_samples[frame].abs().min(1.0));
+            if let Some(samples) = right_samples {
+                right = right.max(samples[frame].abs().min(1.0));
             }
 
             // Map samples to pixels
@@ -157,7 +194,7 @@ fn process_audio_file(input_path: &Path, image: &mut WaveImage, width: u32) -> R
 
             if sample_progress == 0 {
                 // When we've accumulated enough samples for a pixel, draw it
-                if channel_count > 1 {
+                if stereo {
                     image.draw_point(pixel_pos, left, right);
                 } else {
                     image.draw_point_mono(pixel_pos, left);
@@ -180,7 +217,7 @@ fn process_audio_file(input_path: &Path, image: &mut WaveImage, width: u32) -> R
 
     // Draw any remaining partial pixel
     if pixel_pos < width {
-        if channel_count > 1 {
+        if stereo {
             image.draw_point(pixel_pos, left, right);
         } else {
             image.draw_point_mono(pixel_pos, left);
